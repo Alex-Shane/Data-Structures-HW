@@ -13,7 +13,6 @@ import java.util.NoSuchElementException;
  * @param <T> Element type.
  */
 public class SparseIndexedList<T> implements IndexedList<T> {
-
   /**
    * Constructs a new SparseIndexedList of length size
    * with default value of defaultValue.
@@ -22,14 +21,21 @@ public class SparseIndexedList<T> implements IndexedList<T> {
    * @param defaultValue Default value to store in each slot.
    * @throws LengthException if size <= 0.
    */
+  Node<T> head;
+  int length;
+  T defaultValue;
   public SparseIndexedList(int size, T defaultValue) throws LengthException {
-    // TODO
+    if (size <= 0) {
+      throw LengthException;
+    }
+    length = size;
+    this.defaultValue = defaultValue;
+    head = null;
   }
 
   @Override
   public int length() {
-    // TODO
-    return 0;
+    return this.length;
   }
 
   @Override
@@ -48,6 +54,16 @@ public class SparseIndexedList<T> implements IndexedList<T> {
     return new SparseIndexedListIterator();
   }
 
+  private class Node<T> {
+    T data;
+    int index;
+    Node<T> next;
+    private Node (T data, int index, Node<T> next) {
+      this.data = data;
+      this.index = index;
+      this.next = next;
+    }
+  }
   private class SparseIndexedListIterator implements Iterator<T> {
     @Override
     public boolean hasNext() {
