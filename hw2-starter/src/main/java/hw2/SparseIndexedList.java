@@ -26,7 +26,7 @@ public class SparseIndexedList<T> implements IndexedList<T> {
   T defaultValue;
   public SparseIndexedList(int size, T defaultValue) throws LengthException {
     if (size <= 0) {
-      throw LengthException;
+      throw new LengthException();
     }
     length = size;
     this.defaultValue = defaultValue;
@@ -58,22 +58,26 @@ public class SparseIndexedList<T> implements IndexedList<T> {
     T data;
     int index;
     Node<T> next;
-    private Node (T data, int index, Node<T> next) {
+    Node (T data, int index, Node<T> next) {
       this.data = data;
       this.index = index;
       this.next = next;
     }
   }
   private class SparseIndexedListIterator implements Iterator<T> {
+    private Node<T> current;
+    int elementsTraversed;
+    SparseIndexedListIterator() { current = head; }
     @Override
     public boolean hasNext() {
-      // TODO
-      return false;
+      return elementsTraversed < length;
     }
 
     @Override
     public T next() throws NoSuchElementException {
-      // TODO
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
       return null;
     }
   }
