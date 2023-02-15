@@ -67,53 +67,67 @@ public class SparseIndexedList<T> implements IndexedList<T> {
     }
     Node<T> cur = head;
     if (positionHasBeenModified(index)) {
-      Node<T> prev = null;
-      while (cur != null) {
-        if (cur.index == index) {
-          if (value == defaultValue) {
-            // if prev node exists, skip over default value node to "delete" it
-            if (prev != null) {
-              prev.next = cur.next;
-            } else { // if no prev node, then cur at index zero, so make head point to position 1.
-              head = cur.next;
-            }
-          } else {
-            cur.data = value;
-          }
-        }
-        prev = cur;
-        cur = cur.next;
-      }
+      putAtModifiedPosition(cur, index, value);
     } else {
       if (value != defaultValue) {
-        Node<T> add;
-        if (head == null) {
-          add = new Node<>(value, index, null);
-          head = add;
-        } else {
-          // if new position is smaller than current head position, add node to beginning of list and make it head
-          if (index < head.index) {
-            add = new Node<>(value, index, head);
-            head = add;
-          }
-          while (cur != null) {
-            // add the node when the index to add at is smaller than the index of the next node in the list
-            if (cur.next != null && cur.next.index > index) {
-              add = new Node<>(value, index, cur.next);
-              cur.next = add;
-            }
-            cur = cur.next;
-          }
-        }
+        putAtNonModifiedPosition(cur, index, value);
       }
       // regardless of if value == defaultValue, increment length of list
       length++;
     }
   }
 
+  private void putAtModifiedPosition(Node<T> cur, int index, T value) {
+    Node<T> prev = null;
+    while (cur != null) {
+      if (cur.index == index) {
+        if (value == defaultValue) {
+          removeNode(cur, prev);
+        } else {
+          cur.data = value;
+        }
+      }
+      prev = cur;
+      cur = cur.next;
+    }
+  }
+
+  private void removeNode(Node<T> cur, Node<T> prev) {
+    // if prev node exists, skip over default value node to "delete" it
+    if (prev != null) {
+      prev.next = cur.next;
+    } else { // if no prev node, then cur at head, so make head point to next node if it exists
+      if (cur.next == null) {
+        head = null;
+      } else {
+        head = cur.next;
+      }
+    }
+  }
+
+  private void putAtNonModifiedPosition(Node<T> cur, int index, T value) {
+    Node<T> add;
+    if (head == null) {
+      add = new Node<>(value, index, null);
+      head = add;
+    } else {
+      if (index < head.index) { // if new position is before head, add node to front of list and make it head
+        add = new Node<>(value, index, head);
+        head = add;
+      }
+      while (cur != null) { // add the node when target index is before index of next node in the list
+        if (cur.next != null && cur.next.index > index) {
+          add = new Node<>(value, index, cur.next);
+          cur.next = add;
+        }
+        cur = cur.next;
+      }
+    }
+  }
+
   /**
    * Helper function for put that checks if a Node object
-   * exists for a given index in the list
+   * exists for a given index in the list.
    *
    * @param index position to be modified, expected: index >= 0 and index < length.
    * @return true if Node object exists at index, false otherwise
@@ -135,7 +149,7 @@ public class SparseIndexedList<T> implements IndexedList<T> {
   }
 
   /**
-   * An object to store and link unique data in sparse list
+   * An object to store and link unique data in sparse list.
    *
    * @param <T> Element type.
    */
@@ -145,7 +159,7 @@ public class SparseIndexedList<T> implements IndexedList<T> {
     Node<T> next;
 
     /**
-     * Constructs a new Node object with given data, index, and Node to point to
+     * Constructs a new Node object with given data, index, and Node to point to.
      *
      * @param data element value
      * @param index position within the list,
