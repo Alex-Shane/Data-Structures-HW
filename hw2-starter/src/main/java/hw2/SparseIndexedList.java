@@ -42,7 +42,7 @@ public class SparseIndexedList<T> implements IndexedList<T> {
   @Override
   public T get(int index) throws IndexException {
     // check if modified
-    // if not, return default value
+    // not modified, return default value
     // if it has, return value of node at index
     if (index < 0 || index >= length) {
       throw new IndexException();
@@ -190,22 +190,33 @@ public class SparseIndexedList<T> implements IndexedList<T> {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
+      if (curPosition <= head.index) {
+        return nextIfPositionBeforeHead();
+      } else {
+        return nextIfPositionAfterHead();
+      }
+    }
+
+    private T nextIfPositionBeforeHead() {
       if (curPosition == head.index) { // set curNode to head once head is reached in iteration
         curNode = head;
         curPosition++;
         return head.data;
-      } else if (curPosition < head.index) { // if head hasn't been reached, return default
+      } else { // if head hasn't been reached, return default
         curPosition++;
         return defaultValue;
-      } else { // check if Node object at curPosition, if not return default
-        if (curNode.next != null && curNode.next.index == curPosition) {
-          curPosition++;
-          curNode = curNode.next;
-          return curNode.data;
-        } else {
-          curPosition++;
-          return defaultValue;
-        }
+      }
+    }
+
+    private T nextIfPositionAfterHead() {
+      // check if Node object at curPosition, if not return default
+      if (curNode.next != null && curNode.next.index == curPosition) {
+        curPosition++;
+        curNode = curNode.next;
+        return curNode.data;
+      } else {
+        curPosition++;
+        return defaultValue;
       }
     }
   }
