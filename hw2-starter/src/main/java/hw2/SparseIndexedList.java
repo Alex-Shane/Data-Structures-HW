@@ -41,9 +41,6 @@ public class SparseIndexedList<T> implements IndexedList<T> {
 
   @Override
   public T get(int index) throws IndexException {
-    // check if modified
-    // not modified, return default value
-    // if it has, return value of node at index
     if (index < 0 || index >= length) {
       throw new IndexException();
     }
@@ -69,11 +66,9 @@ public class SparseIndexedList<T> implements IndexedList<T> {
     if (positionHasBeenModified(index)) {
       putAtModifiedPosition(cur, index, value);
     } else {
-      if (value != defaultValue) {
+      if (!defaultValue.equals(value)) {
         putAtNonModifiedPosition(cur, index, value);
       }
-      // regardless of if value == defaultValue, increment length of list
-      length++;
     }
   }
 
@@ -81,11 +76,12 @@ public class SparseIndexedList<T> implements IndexedList<T> {
     Node<T> prev = null;
     while (cur != null) {
       if (cur.index == index) {
-        if (value == defaultValue) {
+        if (defaultValue.equals(value)) {
           removeNode(cur, prev);
         } else {
           cur.data = value;
         }
+        break;
       }
       prev = cur;
       cur = cur.next;
@@ -114,14 +110,28 @@ public class SparseIndexedList<T> implements IndexedList<T> {
       if (index < head.index) { // if new position is before head, add node to front of list and make it head
         add = new Node<>(value, index, head);
         head = add;
+      } else if (cur.next == null) { //if only one node in list, add node next to it and adjust head pointer
+        add = new Node<>(value, index, null);
+        head.next = add;
+      } else {
+        addNodeBetweenExistingNodes(cur, index, value);
       }
-      while (cur != null) { // add the node when target index is before index of next node in the list
-        if (cur.next != null && cur.next.index > index) {
-          add = new Node<>(value, index, cur.next);
-          cur.next = add;
-        }
-        cur = cur.next;
+    }
+  }
+
+  private void addNodeBetweenExistingNodes(Node<T> cur, int index, T value) {
+    Node<T> add;
+    while (cur != null) { // add the node when target index is before index of next node in the list
+      if (cur.next != null && cur.next.index > index) {
+        add = new Node<>(value, index, cur.next);
+        cur.next = add;
+        break;
+      } else if (cur.next == null) { // if adding Node with largest index in list
+        add = new Node<>(value,index,null);
+        cur.next = add;
+        break;
       }
+      cur = cur.next;
     }
   }
 
@@ -141,6 +151,14 @@ public class SparseIndexedList<T> implements IndexedList<T> {
       cur = cur.next;
     }
     return false;
+  }
+
+  public Node<T> getHead() {
+    return head;
+  }
+
+  public T getHeadData() {
+    return head.data;
   }
 
   @Override
@@ -190,7 +208,7 @@ public class SparseIndexedList<T> implements IndexedList<T> {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
-      if (curPosition <= head.index) {
+      if (head == null || curPosition <= head.index) {
         return nextIfPositionBeforeHead();
       } else {
         return nextIfPositionAfterHead();
@@ -198,7 +216,7 @@ public class SparseIndexedList<T> implements IndexedList<T> {
     }
 
     private T nextIfPositionBeforeHead() {
-      if (curPosition == head.index) { // set curNode to head once head is reached in iteration
+      if (head != null && curPosition == head.index) { // set curNode to head once head is reached in iteration
         curNode = head;
         curPosition++;
         return head.data;
