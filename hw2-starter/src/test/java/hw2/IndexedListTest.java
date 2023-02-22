@@ -7,9 +7,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit Tests for any class implementing the IndexedList interface.
@@ -130,8 +130,24 @@ public abstract class IndexedListTest {
   }
 
   @Test
+  @DisplayName ("iterator traverses through list properly after node removals with for each loop")
+  void testIteratorWithForEachLoopAfterNodeRemovals() {
+    indexedList.put(0, 3);
+    indexedList.put (3,5);
+    indexedList.put (6, 9);
+    indexedList.put (9, 4);
+    indexedList.put (3,INITIAL); // removed
+    indexedList.put (6,0); // removed
+    int counter = 0;
+    for (Object element:indexedList) {
+      assertEquals(element, indexedList.get(counter));
+      counter++;
+    }
+  }
+
+  @Test
   @DisplayName ("iterator traverses through list properly when the object is called directly")
-  void testIteratorObjectDirectly() {
+  void testIteratorObjectDirectlyWithCallsToNext() {
     Iterator<Integer> it = indexedList.iterator();
     indexedList.put (0,3);
     indexedList.put (4, 6);
@@ -148,7 +164,28 @@ public abstract class IndexedListTest {
     indexedList.put (4, 6);
     for (int k = 0; k <= indexedList.length(); k++) {
       if (k == indexedList.length()) {
-        assertEquals(false, it.hasNext());
+        assertFalse(it.hasNext());
+      }
+      else {
+        it.next();
+      }
+    }
+  }
+
+  @Test
+  @DisplayName("iterator throws exception when next() is called when hasNext() is false")
+  void testIteratorThrowsExceptionWhenNextCalledWhenHasNextFalse() {
+    Iterator<Integer> it = indexedList.iterator();
+    indexedList.put (0,6);
+    indexedList.put (7, 2);
+    for (int k = 0; k <= indexedList.length(); k++) {
+      if (k == indexedList.length()) {
+        try {
+          it.next();
+          fail("iterator did not catch that we have reached end of list");
+        } catch (NoSuchElementException ex) {
+          return;
+        }
       }
       else {
         it.next();
@@ -164,8 +201,61 @@ public abstract class IndexedListTest {
     assertEquals(2, indexedList.get(4));
   }
 
+  @Test
+  @DisplayName("put() properly adds a node between two nodes")
+  void testPutAddsNodeInBetweenTwoNodes() {
+    indexedList.put (3, 4);
+    indexedList.put (5, 9);
+    indexedList.put(4, 8);
+    assertEquals(indexedList.get(4), 8);
+  }
 
+  @Test
+  @DisplayName("put() properly adds a node to the left of head")
+  void testPutAddsNodeBeforeHeadPosition() {
+    indexedList.put (2, 5); // head
+    indexedList.put (1, 2);
+    assertEquals(indexedList.get(1), 2);
+  }
 
+  @Test
+  @DisplayName("put() properly adds a node to the right of head")
+  void testPutAddsNodeAfterHeadPosition() {
+    indexedList.put(2,5);
+    indexedList.put(3,6);
+    assertEquals(indexedList.get(3), 6);
+  }
 
+  @Test
+  @DisplayName("put() can handle adding multiple nodes after head")
+  void testPutAddingMultipleNodesAfterHead() {
+    indexedList.put (0,3);
+    indexedList.put (5, 25);
+    indexedList.put(7, 49);
+    assertEquals(indexedList.get(7), 49);
+  }
+
+  @Test
+  @DisplayName("get() works for getting position between two nodes")
+  void testGetBetweenTwoNodes() {
+    indexedList.put (2,4);
+    indexedList.put(6, 9);
+    assertEquals(indexedList.get(4), INITIAL);
+  }
+
+  @Test
+  @DisplayName("get() works after Node has been removed")
+  void testGetAfterNodeRemoval() {
+    indexedList.put(3,5);
+    indexedList.put(3,INITIAL);
+    assertEquals(indexedList.get(3), INITIAL);
+  }
+
+  @Test
+  @DisplayName("get() works if value to retrieve is null")
+  void testGetRetrieveNull() {
+    indexedList.put(4, null);
+    assertEquals(indexedList.get(4), null);
+  }
 
 }

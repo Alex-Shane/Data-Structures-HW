@@ -21,6 +21,13 @@ public class SparseIndexedListTest extends IndexedListTest {
   }
 
   @Test
+  @DisplayName("Constructor properly sets default value during list instantiation")
+  void testConstructorSetsDefaultValue() {
+    SparseIndexedList<Integer> list = new SparseIndexedList<>(LENGTH, INITIAL);
+    assertEquals(list.getDefaultValue(), INITIAL);
+  }
+
+  @Test
   @DisplayName("put(index,value) does not add Node if value == defaultValue")
   void testIfPutDoesNotAddNodeIfValueToAddIsDefaultValue() {
     SparseIndexedList<Integer> list = new SparseIndexedList<>(LENGTH,INITIAL);
