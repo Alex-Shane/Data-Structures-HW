@@ -10,6 +10,8 @@ import exceptions.IndexException;
  */
 public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
     implements Measured<T> {
+  private int numAccesses;
+  private int numModifications;
 
   /**
    * Constructor for a MeasuredIndexedList.
@@ -19,7 +21,8 @@ public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
    */
   public MeasuredIndexedList(int size, T defaultValue) {
     super(size, defaultValue);
-    // TODO: Implement me
+    numAccesses = 0;
+    numModifications = 0;
   }
 
   @Override
@@ -29,33 +32,64 @@ public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
 
   @Override
   public T get(int index) throws IndexException {
-    // TODO: Implement me
+    try {
+      super.get(index);
+      numAccesses++;
+    } catch (IndexException ex) {
+      throw ex;
+    }
     return null;
   }
 
   @Override
   public void put(int index, T value) throws IndexException {
-    // TODO: Implement me
+    try {
+      super.put(index,value);
+      numModifications++;
+    } catch (IndexException ex) {
+      throw ex;
+    }
   }
 
   @Override
   public void reset() {
-    // TODO: Implement me
+    numAccesses = 0;
+    numModifications = 0;
   }
 
   @Override
   public int accesses() {
-    return 0; // TODO: Implement me
+    return numAccesses;
   }
 
   @Override
   public int mutations() {
-    return 0; // TODO: Implement me
+    return numModifications;
   }
 
   @Override
   public int count(T value) {
-    return 0; // TODO: Implement me
+    int count = 0;
+    if (value == null) {
+      return countNulls();
+    } else {
+      for (int k = 0; k < length(); k++) {
+        if (value.equals(get(k))) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  private int countNulls() {
+    int count = 0;
+    for (int k = 0; k < length(); k++) {
+      if (get(k) == null) {
+        count++;
+      }
+    }
+    return count;
   }
 
 }

@@ -13,7 +13,17 @@ public final class InsertionSort<T extends Comparable<T>>
 
   @Override
   public void sort(IndexedList<T> indexedList) {
-    // TODO: Implement me
+    int curIndex = 1;
+    while (curIndex < indexedList.length()) {
+      T curVal = indexedList.get(curIndex);
+      int prevIndex = curIndex - 1;
+      while (prevIndex >= 0 && indexedList.get(prevIndex).compareTo(curVal) > 0) {
+        indexedList.put(prevIndex + 1, indexedList.get(prevIndex));
+        prevIndex--;
+      }
+      indexedList.put(prevIndex + 1, curVal);
+      curIndex++;
+    }
   }
 
   @Override
