@@ -33,20 +33,21 @@ public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
   @Override
   public T get(int index) throws IndexException {
     try {
-      super.get(index);
       numAccesses++;
+      return super.get(index);
     } catch (IndexException ex) {
+      numAccesses--;
       throw ex;
     }
-    return null;
   }
 
   @Override
   public void put(int index, T value) throws IndexException {
     try {
-      super.put(index,value);
       numModifications++;
+      super.put(index,value);
     } catch (IndexException ex) {
+      numModifications--;
       throw ex;
     }
   }
