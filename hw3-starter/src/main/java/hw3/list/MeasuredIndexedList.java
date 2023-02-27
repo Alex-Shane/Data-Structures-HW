@@ -17,7 +17,7 @@ public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
    * Constructor for a MeasuredIndexedList.
    *
    * @param size         The size of the array.
-   * @param defaultValue The initial value to set every object to in the array..
+   * @param defaultValue The initial value to set every object to in the array.
    */
   public MeasuredIndexedList(int size, T defaultValue) {
     super(size, defaultValue);

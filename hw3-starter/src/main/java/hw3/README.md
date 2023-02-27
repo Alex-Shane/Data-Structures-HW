@@ -9,6 +9,15 @@ the `next()` and/or `hasNext()` methods in the statistics measured, can you inhe
 `ArrayIndexedListIterator` from `ArrayIndexedList` and override the relevant methods, or not? 
 Explain.**
 
+Iterating over MeasuredIndexedList should affect the accesses but not the mutations
+since we would need to call get() at each element in the list,
+but the iterator never modifies a value in the list.
+
+You can't inherit ArrayIndexedListIterator from ArrayIndexedList and override
+the relevant methods since ArrayIndexedListIterator is a private nested class,
+so the subclass (MeasuredIndexedList) does not have access to it and thus can't override
+its methods. 
+
 
 
 ## PART II: EXPERIMENTS
