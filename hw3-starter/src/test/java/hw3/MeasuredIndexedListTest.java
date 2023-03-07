@@ -50,6 +50,12 @@ public class MeasuredIndexedListTest {
   }
 
   @Test
+  @DisplayName("count() works properly when list unchanged after instantiation")
+  void testUnmodifiedListWithCount() {
+    assertEquals(15, measuredIndexedList.count(3));
+  }
+
+  @Test
   @DisplayName("MeasuredIndexedList count() works properly for one non null value")
   void testCountWithSingleNonNullValue() {
     measuredIndexedList.put(1, 4);

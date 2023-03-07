@@ -13,16 +13,23 @@ public final class InsertionSort<T extends Comparable<T>>
 
   @Override
   public void sort(IndexedList<T> indexedList) {
-    int curIndex = 1;
-    while (curIndex < indexedList.length()) {
-      T curVal = indexedList.get(curIndex);
-      int prevIndex = curIndex - 1;
-      while (prevIndex >= 0 && indexedList.get(prevIndex).compareTo(curVal) > 0) {
-        indexedList.put(prevIndex + 1, indexedList.get(prevIndex));
-        prevIndex--;
+    // represents the index of the current unsorted element in the list
+    int unsortedIndex = 1;
+    // go through whole list so it all gets sorted
+    while (unsortedIndex < indexedList.length()) {
+      // value at position of unsorted element
+      T curVal = indexedList.get(unsortedIndex);
+      // greatest sorted element
+      int greatestSortedIndex = unsortedIndex - 1;
+      // loops until we find the smallest value in list or find right place to put curVal
+      while (greatestSortedIndex >= 0 && indexedList.get(greatestSortedIndex).compareTo(curVal) > 0) {
+        // move value at greatestSortedIndex one spot to the right to keep sorting
+        indexedList.put(greatestSortedIndex + 1, indexedList.get(greatestSortedIndex));
+        greatestSortedIndex--;
       }
-      indexedList.put(prevIndex + 1, curVal);
-      curIndex++;
+      // put curVal in proper spot
+      indexedList.put(greatestSortedIndex + 1, curVal);
+      unsortedIndex++;
     }
   }
 

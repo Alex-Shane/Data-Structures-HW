@@ -36,7 +36,7 @@ public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
       numAccesses++;
       return super.get(index);
     } catch (IndexException ex) {
-      numAccesses--;
+      numAccesses--; // if exception, counteract access counter that was previously incremented
       throw ex;
     }
   }
@@ -47,7 +47,7 @@ public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
       numModifications++;
       super.put(index,value);
     } catch (IndexException ex) {
-      numModifications--;
+      numModifications--; // if exception, counteract mutation counter that was previously incremented
       throw ex;
     }
   }
@@ -83,6 +83,7 @@ public class MeasuredIndexedList<T> extends ArrayIndexedList<T>
     return count;
   }
 
+  // method used to count occurrences of nulls in a list
   private int countNulls() {
     int count = 0;
     for (int k = 0; k < length(); k++) {
