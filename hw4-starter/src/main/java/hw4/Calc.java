@@ -17,18 +17,24 @@ public final class Calc {
     LinkedStack<Integer> stack = new LinkedStack<>();
     String userInput = keyboard.next();
     while (!("!".equals(userInput))) {
-      if (inputIsInteger(userInput)) {
-        stack.push(Integer.parseInt(userInput));
-      } else if (inputIsValidOperator(userInput)) {
-        if (!stackInStateToPerformOperation(stack)) {
-          System.out.println("ERROR: Invalid operation with only one number");
-        } else {
-          performOperation(userInput, stack);
-        }
-      } else if (inputIsValidCommand(userInput)) {
-        performCommand(userInput, stack);
-      }
+      handleInput(userInput, stack);
       userInput = keyboard.next();
+    }
+  }
+
+  private static void handleInput(String input, LinkedStack<Integer> stack) {
+    if (inputIsInteger(input)) {
+      stack.push(Integer.parseInt(input));
+    } else if (inputIsValidOperator(input)) {
+      if (!stackInStateToPerformOperation(stack)) {
+        System.out.println("ERROR: Invalid operation with only one number");
+      } else {
+        performOperation(input, stack);
+      }
+    } else if (inputIsValidCommand(input)) {
+      performCommand(input, stack);
+    } else {
+      System.out.println("ERROR: bad token");
     }
   }
 
