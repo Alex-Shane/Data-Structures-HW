@@ -27,7 +27,7 @@ public final class Calc {
       stack.push(Integer.parseInt(input));
     } else if (inputIsValidOperator(input)) {
       if (!stackInStateToPerformOperation(stack)) {
-        System.out.println("ERROR: Invalid operation with only one number");
+        System.out.println("ERROR: Invalid operation with one or zero numbers in stack");
       } else {
         performOperation(input, stack);
       }
@@ -67,9 +67,9 @@ public final class Calc {
     } else if ("*".equals(input)) {
       stack.push(val1 * val2); // put result back into stack
     } else if ("/".equals(input)) {
-      stack.push(val1 / val2); // put result back into stack
+      performDivision(stack, val1, val2);
     } else {
-      stack.push(val1 % val2); // put result back into stack
+      performModulusDivision(stack, val1, val2);
     }
   }
 
@@ -77,7 +77,11 @@ public final class Calc {
     if ("?".equals(input)) {
       System.out.println(stack.toString());
     } else {
-      System.out.println(stack.top());
+      if (stack.empty()) {
+        System.out.println("ERROR: Invalid command when stack is empty");
+      } else {
+        System.out.println(stack.top());
+      }
     }
   }
 
@@ -89,11 +93,32 @@ public final class Calc {
       stack.pop();
       // if stack empty after call, then can't perform operation because we need two numbers to perform operation
       if (stack.empty()) {
+        stack.push(topVal);
         return false;
       } else {
         stack.push(topVal); // revert to original stack state
         return true;
       }
+    }
+  }
+
+  private static void performDivision(LinkedStack<Integer> stack, int val1, int val2) {
+    if (val2 == 0) {
+      stack.push(val1);
+      stack.push(val2);
+      System.out.println("ERROR: can't divide by zero");
+    } else {
+      stack.push(val1 / val2); // put result back into stack
+    }
+  }
+
+  private static void performModulusDivision(LinkedStack<Integer> stack, int val1, int val2) {
+    if (val2 == 0) {
+      stack.push(val1);
+      stack.push(val2);
+      System.out.println("ERROR: can't modulus divide by zero");
+    } else {
+      stack.push(val1 % val2); // put result back into stack
     }
   }
 }
