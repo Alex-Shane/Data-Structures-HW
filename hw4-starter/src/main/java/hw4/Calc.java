@@ -15,10 +15,12 @@ public final class Calc {
   public static void main(String[] args) {
     Scanner keyboard = new Scanner(System.in);
     LinkedStack<Integer> stack = new LinkedStack<>();
-    String userInput = keyboard.next();
-    while (!("!".equals(userInput))) {
+    while (keyboard.hasNext()) {
+      String userInput = keyboard.next();
+      if ("!".equals(userInput)) {
+        break;
+      }
       handleInput(userInput, stack);
-      userInput = keyboard.next();
     }
   }
 
@@ -52,7 +54,7 @@ public final class Calc {
   }
 
   private static boolean inputIsValidCommand(String input) {
-    return "?".equals(input) || ".".equals(input); // don't need to check ! because that is checked in while condition
+    return "?".equals(input) || ".".equals(input); // ! checked in main loop
   }
 
   private static void performOperation(String input, LinkedStack<Integer> stack) {
