@@ -19,6 +19,8 @@ public class MoveToFrontLinkedSet<T> extends LinkedSet<T> {
           prev.next = next;
           next.prev = prev;
           n.next = head;
+          head.prev = n;
+          n.prev = null;
           head = n;
         }
         return n;
@@ -32,6 +34,24 @@ public class MoveToFrontLinkedSet<T> extends LinkedSet<T> {
     prev.next = null;
     tail = prev;
     target.next = head;
+    target.prev = null;
+    head.prev = target;
     head = target;
+  }
+
+  public static void main(String[] args) {
+    LinkedSet<Integer> set = new MoveToFrontLinkedSet<Integer>();
+    set.insert(5);
+    set.insert(8);
+    set.insert(9);
+    System.out.println(set.has(5));
+    System.out.println(set.has(8));
+    System.out.println(set.has(9));
+    set.remove(8);
+    System.out.println(set.has(8));
+    set.remove(9);
+    System.out.println(set.has(9));
+    set.remove(5);
+    System.out.println(set.has(5));
   }
 }

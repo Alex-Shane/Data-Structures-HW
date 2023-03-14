@@ -43,6 +43,15 @@ public abstract class DequeTest {
   }
 
   @Test
+  @DisplayName ("Deque length() works properly after removal")
+  public void testLengthAfterRemoval() {
+    deque.insertFront("hi");
+    assertEquals(1, deque.length());
+    deque.removeFront();
+    assertEquals(0, deque.length());
+  }
+
+  @Test
   @DisplayName("Deque front() throws exception when deque is empty")
   public void testFrontThrowsExceptionWhenEmptyDeque() {
     try {
