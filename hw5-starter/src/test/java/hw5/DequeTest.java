@@ -100,9 +100,17 @@ public abstract class DequeTest {
   @DisplayName("Deque back() works with multiple elements in deque")
   public void testBackWithMultipleElementsInDeque() {
     deque.insertBack("hi");
+    assertEquals(deque.length(), 1);
     deque.insertBack("yo");
+    //assertEquals(deque.length(), 2);
     deque.insertBack("bye");
-    assertEquals("bye", deque.back());
+    //assertEquals(deque.length(), 3);
+    deque.insertBack("test");
+    //assertEquals(deque.length(), 3);
+    deque.insertBack("test2");
+    deque.insertBack("test3");
+    deque.insertBack("test4");
+    assertEquals("test2", deque.back());
   }
 
   @Test
@@ -140,6 +148,17 @@ public abstract class DequeTest {
   public void testRemoveFrontThrowsExceptionWhenEmptyDeque() {
     try {
       deque.removeFront();
+      fail("deque didn't catch exception with empty deque");
+    } catch (EmptyException ex) {
+      return;
+    }
+  }
+
+  @Test
+  @DisplayName("Deque removeBack() throws exception when empty deque")
+  public void testRemoveBackThrowsExceptionWhenEmptyDeque() {
+    try {
+      deque.removeBack();
       fail("deque didn't catch exception with empty deque");
     } catch (EmptyException ex) {
       return;

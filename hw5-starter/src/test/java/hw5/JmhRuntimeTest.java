@@ -39,6 +39,9 @@ public class JmhRuntimeTest {
     for (Integer num : data) {
       set.insert(num);
     }
+    for (Integer num : data) {
+      set.has(999);
+    }
   }
 
   @Benchmark
