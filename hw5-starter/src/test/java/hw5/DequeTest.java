@@ -75,7 +75,8 @@ public abstract class DequeTest {
     deque.insertFront("hi");
     deque.insertFront("yo");
     deque.insertFront("bye");
-    assertEquals("bye", deque.front());
+    deque.insertFront("hey");
+    assertEquals("hey", deque.front());
   }
 
   @Test
@@ -102,15 +103,7 @@ public abstract class DequeTest {
     deque.insertBack("hi");
     assertEquals(deque.length(), 1);
     deque.insertBack("yo");
-    //assertEquals(deque.length(), 2);
-    deque.insertBack("bye");
-    //assertEquals(deque.length(), 3);
-    deque.insertBack("test");
-    //assertEquals(deque.length(), 3);
-    deque.insertBack("test2");
-    deque.insertBack("test3");
-    deque.insertBack("test4");
-    assertEquals("test2", deque.back());
+    assertEquals("yo", deque.back());
   }
 
   @Test
@@ -140,7 +133,12 @@ public abstract class DequeTest {
   public void testInsertBackWithMultipleElementsInDeque() {
     deque.insertBack("hi");
     deque.insertBack("hello");
-    assertEquals("hello", deque.back());
+    deque.insertBack("hurt");
+    deque.insertBack("roof");
+    deque.insertBack("noot");
+    deque.insertBack("back");
+    deque.insertBack("back2");
+    assertEquals("back2", deque.back());
   }
 
   @Test

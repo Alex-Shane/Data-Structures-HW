@@ -9,7 +9,13 @@ Flaw 2: FlawedDeque failed testBackThrowsExceptionWhenEmptyDeque() since it thro
 empty exception. The error here is pretty obvious that the implementation throws a length exception instead of an empty
 exception. 
 
-Flaw 3: 
+Flaw 3: The insertBack() method has something strange going on with it as almost every method that uses insertBack()
+more than once fails. Looking more closely at one of these tests that fails, testInsertBackWithMultipleElements(), it appears
+that not every element gets added properly to the back of the deque. The pattern seems to be that every other call to insertBack()
+works as intended, but the 5th and 6th calls both work, however the 7th call doesn't. Thus, I believe that the error that is causing
+this flaw must be in the growing of the data structure used to implement deque. Either the underlying data structure isn't growing
+fast enough or it is growing at the right rate and time, but the last element that should be in the deque is not getting added,
+which would make sense why it appears that an element is only added every two calls. 
 
 
 ## Hacking Linear Search

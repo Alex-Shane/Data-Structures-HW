@@ -9,7 +9,8 @@ Flaw 2: FlawedDeque failed testBackThrowsExceptionWhenEmptyDeque() since it thro
 empty exception. The error here is pretty obvious that the implementation throws a length exception instead of an empty
 exception. 
 
-Flaw 3: 
+Flaw 3: The insertBack() method has something strange going on with it as almost every method that uses insertBack()
+more than once fails. Looking more closely at one of these tests that fails, 
 
 
 ## Hacking Linear Search
@@ -25,3 +26,24 @@ need to traverse through n-1 elements.
 
 ## Profiling
 
+Times with initial setup/experiment: 
+    ArraySet: 0.241 ms/op
+    LinkedSet: 0.876 ms/op
+    MoveToFront: 0.876 ms/op
+    TransposeSequence: 0.221 ms/op
+
+To make the heuristic implementations perform faster than the original implementations, I decided to add on to the 
+experiment. After adding all the numbers, I decided to go through the set again, but each time only calling the has
+method for one number. For both LinkedSet and ArraySet, they would traverse through the set in its entirety each time
+until they found the specific number. However, for MoveToFront, after the first has call, it would find the number in O(1)
+time since that number would now be at the head. And, for TransposeSequence, each time it finds the number, it swaps with the
+previous element so that with each call it would take less time to find the number. 
+
+Times with changes to experiment and keeping setup the same:
+    ArraySet: 0.429 ms/op
+    LinkedSet: 1.750 ms/op
+    MovetoFront: 0.890 ms/op
+    TransposeSequence: 0.304 ms/op
+
+From these results its clear that the heuristics performed faster with the new experiment (MoveToFront was almost 2x faster
+than the original implementation and TransposeSequence was more than .100 ms/op faster than ArraySet).
