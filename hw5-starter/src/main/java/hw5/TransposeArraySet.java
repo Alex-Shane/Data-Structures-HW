@@ -13,7 +13,7 @@ public class TransposeArraySet<T> extends ArraySet<T> {
       if (t.equals(data[i])) {
         if (i == 0) {
           return i;
-        } else {
+        } else { // perform swapping that the target element is moved closer to the front of the list
           T temp = data[i - 1];
           data[i - 1] = data[i];
           data[i] = temp;
@@ -24,8 +24,13 @@ public class TransposeArraySet<T> extends ArraySet<T> {
     return -1;
   }
 
-  public static void main (String[] args) {
-    ArraySet<Integer> set = new TransposeArraySet<Integer>();
+  /**
+   * main method for TransposeArraySet that performs a series of operations on a set.
+   *
+   * @param args takes input as a string but we don't use in this method.
+   */
+  public static void main(String[] args) {
+    ArraySet<Integer> set = new TransposeArraySet<>();
     set.insert(4);
     set.insert(6);
     set.insert(7);

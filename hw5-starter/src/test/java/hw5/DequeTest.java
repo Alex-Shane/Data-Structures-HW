@@ -221,4 +221,15 @@ public abstract class DequeTest {
     assertEquals("hi", deque.back());
   }
 
+  @Test
+  @DisplayName("Deque works like stack when only calling front methods")
+  public void testDequeWorksAsStackWithOnlyFrontMethods() {
+    deque.insertFront("hi");
+    deque.insertFront("bye");
+    assertEquals(deque.front(), "bye");
+    deque.removeFront();
+    deque.removeFront();
+    assertEquals(deque.length(), 0);
+  }
+
 }

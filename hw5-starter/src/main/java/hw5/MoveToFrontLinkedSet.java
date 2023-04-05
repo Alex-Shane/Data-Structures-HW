@@ -11,9 +11,9 @@ public class MoveToFrontLinkedSet<T> extends LinkedSet<T> {
   protected Node<T> find(T t) {
     for (Node<T> n = head; n != null; n = n.next) {
       if (n.data.equals(t)) {
-        if (n == tail && n != head) {
+        if (n == tail && n != head) { // move tail to head and adjust pointers
           moveTail(n);
-        } else if (n != head) {
+        } else if (n != head) { // adjust pointers accordingly
           Node<T> prev = n.prev;
           Node<T> next = n.next;
           prev.next = next;
@@ -39,8 +39,14 @@ public class MoveToFrontLinkedSet<T> extends LinkedSet<T> {
     head = target;
   }
 
+
+  /**
+   * main method for MoveToFrontLinkedSet that performs a series of operations on a set.
+   *
+   * @param args takes input as a string but we don't use in this method.
+   */
   public static void main(String[] args) {
-    LinkedSet<Integer> set = new MoveToFrontLinkedSet<Integer>();
+    LinkedSet<Integer> set = new MoveToFrontLinkedSet<>();
     set.insert(5);
     set.insert(8);
     set.insert(9);
