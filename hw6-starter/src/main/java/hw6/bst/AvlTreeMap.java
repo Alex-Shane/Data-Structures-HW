@@ -40,7 +40,61 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     if (node == null) { // node that doesn't exist has height of -1
       return -1;
     }
-    
+    int compare = node.key.compareTo(k);
+    if (compare > 0) {
+      if (node.right == null) {
+
+      }
+    }
+  }
+
+  private Node<K, V> rebalanceNode(K k, Node<K, V> node) {
+    int nodeBF = node.bf;
+    if (nodeBF >= -1 && nodeBF <= 1) {
+      return null;
+    }
+    if (nodeBF < -1) { // denotes right heavy tree
+      if (node.right.bf <= 0) { // if parent bf = -2 and right child bf = -1 or 0, rotate left
+        node = rotateLeft(k, node);
+      } else { // perform RightLeft rotation if right child bf = 1
+        node = rotateLeftRight(k, node);
+      }
+    } else { // denotes left heavy
+      if (node.left.bf >= 0) { // if parent bf = -2 and left child bf = 0 or 1
+        node = rotateRight(k, node);
+      } else {
+        node = rotateLeftRight(k, node);
+      }
+    }
+    return node;
+  }
+
+  private Node<K, V> rotateRight(K k, Node<K, V> node) {
+    Node<K, V> leftChild = node.left; // leftChild is root of rotated tree
+    node.left = leftChild.right; // put keys larger than new root and smaller than old root to the left of old root
+    leftChild.right = node; // move original root to right of new root
+    updateHeight(k, node); // update old root height
+    updateHeight(k, leftChild); // update new root height
+    return leftChild;
+  }
+
+  private Node<K, V> rotateLeft(K k, Node<K, V> node) {
+    Node<K, V> rightChild = node.right; // rightChild is new root
+    node.right = rightChild.left; // move keys between old root and new root to the right of old root
+    rightChild.left = node; // move old root to the left of new root
+    updateHeight(k, node); // update old root height
+    updateHeight(k, rightChild); // update new root height
+    return rightChild;
+  }
+
+  private Node<K, V> rotateRightLeft(K k, Node<K, V> node) {
+    node.right = rotateRight(k, node.right); // first perform right rotation on right child
+    return rotateLeft(k, node); // then perform left rotation on original root, returning new root after rotation
+  }
+
+  private Node<K, V> rotateLeftRight(K k, Node<K, V> node) {
+    node.left = rotateLeft(k, node.left); // first perform left rotation on left child
+    return rotateRight(k, node); // // then perform right rotation on original root, returning new root after rotation
   }
 
 
