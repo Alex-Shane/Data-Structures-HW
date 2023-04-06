@@ -1,8 +1,6 @@
 package hw6.bst;
 
-import exceptions.EmptyException;
 import hw6.OrderedMap;
-
 import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.Stack;
@@ -21,26 +19,34 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
 
   @Override
   public void insert(K k, V v) throws IllegalArgumentException {
+    if (k == null) {
+      throw new IllegalArgumentException();
+    }
     // perform normal insertion for BST
     root = insertPair(k, v, root);
     // update heights and balance factors
-    updateHeightAndBalanceFactor(k, root);
+    root.height = updateHeightAndBalanceFactor(k, root);
     // search for imbalanced node, and balance the deepest node
-    Stack<Node<K, V>> stack = new Stack<Node<K, V>>();
+    Stack<Node<K, V>> stack = new Stack<>();
     Node<K, V> imbalancedNode = findDeepestImbalancedNode(k, root, stack);
     if (imbalancedNode != null) { // if imbalanced node, perform rotation
       imbalancedNode = balanceNode(k, imbalancedNode);
+      root.height = updateHeightAndBalanceFactor(k, root);
     }
+    numElements++;
   }
 
   private Node<K, V> insertPair(K k, V v, Node<K, V> node) {
     if (node == null) {
-      return new Node<K,V>(k,v);
+      return new Node<>(k,v);
     }
-    if (node.key.compareTo(k) > 0) {
+    int cmp = node.key.compareTo(k);
+    if (cmp > 0) {
       node.left = insertPair(k, v, node.left);
-    } else if (node.key.compareTo(k) < 0) {
+    } else if (cmp < 0) {
       node.right = insertPair(k, v, node.right);
+    } else {
+      throw new IllegalArgumentException();
     }
     return node;
   }
@@ -111,24 +117,30 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     Node<K, V> leftChild = node.left; // leftChild is root of rotated tree
     node.left = leftChild.right; // put keys larger than new root and smaller than old root to the left of old root
     leftChild.right = node; // move original root to right of new root
-    updateHeightAndBalanceFactor(k, node); // update old root height
-    updateHeightAndBalanceFactor(k, leftChild); // update new root height
     if (node == root) { // update root if needed
       root = leftChild;
     }
-    return leftChild;
+    node.height = 1 + Math.max(findSubtreeHeight(node.left), findSubtreeHeight(node.right));
+    node.bf = findSubtreeHeight(node.left) - findSubtreeHeight(node.right);
+    leftChild.height = 1 + Math.max(findSubtreeHeight(leftChild.left), findSubtreeHeight(leftChild.right));
+    leftChild.bf = findSubtreeHeight(node.left) - findSubtreeHeight(node.right);
+    node = leftChild;
+    return node;
   }
 
   private Node<K, V> rotateLeft(K k, Node<K, V> node) {
     Node<K, V> rightChild = node.right; // rightChild is new root
     node.right = rightChild.left; // move keys between old root and new root to the right of old root
     rightChild.left = node; // move old root to the left of new root
-    updateHeightAndBalanceFactor(k, node); // update old root height
-    updateHeightAndBalanceFactor(k, rightChild); // update new root height
     if (node == root) { // update root if needed
       root = rightChild;
     }
-    return rightChild;
+    node.height = 1 + Math.max(findSubtreeHeight(node.left), findSubtreeHeight(node.right));
+    node.bf = findSubtreeHeight(node.left) - findSubtreeHeight(node.right);
+    rightChild.height = 1 + Math.max(findSubtreeHeight(rightChild.left), findSubtreeHeight(rightChild.right));
+    rightChild.bf = findSubtreeHeight(rightChild.left) - findSubtreeHeight(rightChild.right);
+    node = rightChild;
+    return node;
   }
 
   private Node<K, V> rotateRightLeft(K k, Node<K, V> node) {
@@ -150,6 +162,9 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
 
   @Override
   public void put(K k, V v) throws IllegalArgumentException {
+    if (k == null) {
+      throw new IllegalArgumentException();
+    }
     Node<K, V> nodeToUpdate = find(k, root);
     if (nodeToUpdate == null) { // throw exception if target key doesn't exist in tree
       throw new IllegalArgumentException();
@@ -159,6 +174,9 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
 
   @Override
   public V get(K k) throws IllegalArgumentException {
+    if (k == null) {
+      throw new IllegalArgumentException();
+    }
     Node<K, V> target = find(k, root);
     if (target == null) { // throw exception if target key doesn't exist in tree
       throw new IllegalArgumentException();

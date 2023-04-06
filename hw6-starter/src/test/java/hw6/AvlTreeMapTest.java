@@ -50,6 +50,29 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
+  public void insertLeftRotationWithMoreElements() {
+    map.insert("5", "a");
+    map.insert("4", "b");
+    map.insert("6", "c");
+    map.insert("3", "d");
+    map.insert("9", "e");
+    System.out.println(map.toString());
+    // must print
+    /*
+        7:a,
+        6:b 8:c
+        5:d null null 9:e
+     */
+
+    String [] expected = new String[] {
+            "7:a",
+            "6:b 8:c",
+            "5:d null null 9:e"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+  }
+
+  @Test
   public void insertRightRotation() {
     map.insert("3", "c");
     System.out.println(map.toString());
@@ -77,6 +100,30 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
     String[] expected = new String[]{
             "2:b",
             "1:a 3:c"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+  }
+
+  @Test
+  public void insertRightRotationWithMoreElements() {
+    map.insert("7", "a");
+    map.insert("6", "b");
+    map.insert("8", "c");
+    map.insert("5", "d");
+    map.insert("9", "e");
+    map.insert("4", "f");
+    System.out.println(map.toString());
+    // must print
+    /*
+        7:a
+        5:d 8:c
+        4:f 6:b null 9:e
+     */
+
+    String [] expected = new String[] {
+            "7:a",
+            "5:d 8:c",
+            "4:f 6:b null 9:e"
     };
     assertEquals((String.join("\n", expected) + "\n"), map.toString());
   }
@@ -113,6 +160,8 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
     assertEquals((String.join("\n", expected) + "\n"), map.toString());
   }
 
+
+
   @Test
   public void insertRightLeftRotation() {
     map.insert("3", "c");
@@ -144,5 +193,6 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
     };
     assertEquals((String.join("\n", expected) + "\n"), map.toString());
   }
+
 
 }
