@@ -22,77 +22,59 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     if (k == null) {
       throw new IllegalArgumentException();
     }
-    // perform normal insertion for BST
-    root = insertPair(k, v, root);
-    // update heights and balance factors
-    root.height = updateHeightAndBalanceFactor(k, root);
-    // search for imbalanced node, and balance the deepest node
-    Stack<Node<K, V>> stack = new Stack<>();
-    Node<K, V> imbalancedNode = findDeepestImbalancedNode(k, root, stack);
-    if (imbalancedNode != null) { // if imbalanced node, perform rotation
-      imbalancedNode = balanceNode(k, imbalancedNode);
-      root.height = updateHeightAndBalanceFactor(k, root);
-    }
+    root = insert(k, v, root);
     numElements++;
   }
 
-  private Node<K, V> insertPair(K k, V v, Node<K, V> node) {
-    if (node == null) {
+  private Node<K, V> insert(K k, V v, Node<K, V> node) {
+    if (node == null) { // base case: put new node in correct spot
       return new Node<>(k,v);
     }
+    // search for correct spot to put new node
     int cmp = node.key.compareTo(k);
     if (cmp > 0) {
-      node.left = insertPair(k, v, node.left);
+      node.left = insert(k, v, node.left);
     } else if (cmp < 0) {
-      node.right = insertPair(k, v, node.right);
+      node.right = insert(k, v, node.right);
     } else {
       throw new IllegalArgumentException();
+    }
+    // update height and bf of current node
+    updateNodeHeight(node);
+    updateNodeBF(node);
+    if (node.bf > 1 || node.bf < -1) { // balance node if needed
+      node = balanceNode(k, node);
     }
     return node;
   }
 
-  private int updateHeightAndBalanceFactor(K k, Node<K, V> node) {
-    if (node == null) { // node that doesn't exist has height of -1
-      return -1;
-    }
-    int compare = node.key.compareTo(k);
-    int curLeftSubtreeHeight;
-    int curRightSubtreeHeight;
-    if (compare > 0) {
-      curLeftSubtreeHeight = updateHeightAndBalanceFactor(k, node.left);
-      curRightSubtreeHeight = findSubtreeHeight(node.right);
-    } else {
-      curLeftSubtreeHeight = findSubtreeHeight(node.left);
-      curRightSubtreeHeight = updateHeightAndBalanceFactor(k, node.right);
-    }
-    node.height = 1 + Math.max(curRightSubtreeHeight, curLeftSubtreeHeight);
-    node.bf = curLeftSubtreeHeight - curRightSubtreeHeight;
-    return node.height;
-  }
-
-  private int findSubtreeHeight(Node<K, V> node) {
+  private void updateNodeHeight(Node<K, V> node) {
     if (node == null) {
-      return -1;
+      return;
     }
-    return node.height;
-  }
-
-  private Node<K, V> findDeepestImbalancedNode(K k, Node<K, V> node, Stack<Node<K, V>> stack) {
-    if (node == null) {
-      try {
-        return stack.pop();
-      } catch (EmptyStackException ex) {
-        return null;
+    if (node.left == null) {
+      if (node.right == null) { // if no children, height is zero
+        node.height = 0;
+      } else { // if only right child, height = height right child + 1
+        node.height = 1 + node.right.height;
       }
+    } else if (node.right == null) { // if only left child, height = height left child + 1
+      node.height = 1 + node.left.height;
+    } else { // if two children, height = 1 + bigger of the two children's heights
+      node.height = 1 + Math.max (node.left.height, node.right.height);
     }
-    if (node.bf > 1 || node.bf < -1) {
-      stack.push(node);
+  }
+
+  private void updateNodeBF(Node<K, V> node) {
+    int leftSubtreeHeight = 0;
+    int rightSubTreeHeight = 0;
+    if (node.left != null) {
+      leftSubtreeHeight = 1 + node.left.height;
     }
-    int check = node.key.compareTo(k);
-    if (check > 0) {
-      return findDeepestImbalancedNode(k, node.left, stack);
+    if (node.right != null) {
+      rightSubTreeHeight = 1 + node.right.height;
     }
-    return findDeepestImbalancedNode(k, node.right, stack);
+    node.bf = leftSubtreeHeight - rightSubTreeHeight;
   }
 
   private Node<K, V> balanceNode(K k, Node<K, V> node) {
@@ -114,37 +96,39 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
   }
 
   private Node<K, V> rotateRight(K k, Node<K, V> node) {
-    Node<K, V> leftChild = node.left; // leftChild is root of rotated tree
-    node.left = leftChild.right; // put keys larger than new root and smaller than old root to the left of old root
-    leftChild.right = node; // move original root to right of new root
-    if (node == root) { // update root if needed
-      root = leftChild;
-    }
-    node.height = 1 + Math.max(findSubtreeHeight(node.left), findSubtreeHeight(node.right));
-    node.bf = findSubtreeHeight(node.left) - findSubtreeHeight(node.right);
-    leftChild.height = 1 + Math.max(findSubtreeHeight(leftChild.left), findSubtreeHeight(leftChild.right));
-    leftChild.bf = findSubtreeHeight(node.left) - findSubtreeHeight(node.right);
-    node = leftChild;
-    return node;
+    // perform rotation
+    Node<K, V> leftChild = node.left;
+    node.left = leftChild.right;
+    leftChild.right = node;
+    //decrement heights before updating
+    node.height--;
+    leftChild.height--;
+    // update heights and balance factors
+    updateNodeHeight(node);
+    updateNodeHeight(leftChild);
+    updateNodeBF(node);
+    updateNodeBF(leftChild);
+    return leftChild;
   }
 
   private Node<K, V> rotateLeft(K k, Node<K, V> node) {
-    Node<K, V> rightChild = node.right; // rightChild is new root
-    node.right = rightChild.left; // move keys between old root and new root to the right of old root
-    rightChild.left = node; // move old root to the left of new root
-    if (node == root) { // update root if needed
-      root = rightChild;
-    }
-    node.height = 1 + Math.max(findSubtreeHeight(node.left), findSubtreeHeight(node.right));
-    node.bf = findSubtreeHeight(node.left) - findSubtreeHeight(node.right);
-    rightChild.height = 1 + Math.max(findSubtreeHeight(rightChild.left), findSubtreeHeight(rightChild.right));
-    rightChild.bf = findSubtreeHeight(rightChild.left) - findSubtreeHeight(rightChild.right);
-    node = rightChild;
-    return node;
+    // perform rotation
+    Node<K, V> rightChild = node.right;
+    node.right = rightChild.left;
+    rightChild.left = node;
+    // decrement heights before updating
+    node.height--;
+    rightChild.height--;
+    // update heights and balance factors
+    updateNodeHeight(node);
+    updateNodeHeight(rightChild);
+    updateNodeBF(node);
+    updateNodeBF(rightChild);
+    return rightChild;
   }
 
   private Node<K, V> rotateRightLeft(K k, Node<K, V> node) {
-    node.right = rotateRight(k, node.right); // first perform right rotation on right child
+    node.right = rotateRight(k, node.right);// first perform right rotation on right child
     return rotateLeft(k, node); // then perform left rotation on original root, returning new root after rotation
   }
 

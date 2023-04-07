@@ -55,19 +55,20 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
     map.insert("4", "b");
     map.insert("6", "c");
     map.insert("3", "d");
-    map.insert("9", "e");
+    map.insert("7", "e");
+    map.insert("8", "f");
     System.out.println(map.toString());
     // must print
     /*
-        7:a,
-        6:b 8:c
-        5:d null null 9:e
+        5:a
+        4:b 7:e
+        3:d null 6:c 8:f
      */
 
     String [] expected = new String[] {
-            "7:a",
-            "6:b 8:c",
-            "5:d null null 9:e"
+            "5:a",
+            "4:b 7:e",
+            "3:d null 6:c 8:f"
     };
     assertEquals((String.join("\n", expected) + "\n"), map.toString());
   }
