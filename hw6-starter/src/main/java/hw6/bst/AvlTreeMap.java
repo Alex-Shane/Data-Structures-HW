@@ -1,7 +1,6 @@
 package hw6.bst;
 
 import hw6.OrderedMap;
-import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -43,7 +42,7 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     updateNodeHeight(node);
     updateNodeBF(node);
     if (node.bf > 1 || node.bf < -1) { // balance node if needed
-      node = balanceNode(k, node);
+      node = balanceNode(node);
     }
     return node;
   }
@@ -61,7 +60,7 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     } else if (node.right == null) { // if only left child, height = height left child + 1
       node.height = 1 + node.left.height;
     } else { // if two children, height = 1 + bigger of the two children's heights
-      node.height = 1 + Math.max (node.left.height, node.right.height);
+      node.height = 1 + Math.max(node.left.height, node.right.height);
     }
   }
 
@@ -77,25 +76,25 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     node.bf = leftSubtreeHeight - rightSubTreeHeight;
   }
 
-  private Node<K, V> balanceNode(K k, Node<K, V> node) {
+  private Node<K, V> balanceNode(Node<K, V> node) {
     int nodeBF = node.bf;
     if (nodeBF < -1) { // denotes right heavy tree
       if (node.right.bf <= 0) { // if parent bf = -2 and right child bf = -1 or 0, rotate left
-        node = rotateLeft(k, node);
+        node = rotateLeft(node);
       } else { // perform RightLeft rotation if right child bf = 1
-        node = rotateRightLeft(k, node);
+        node = rotateRightLeft(node);
       }
     } else { // denotes left heavy
       if (node.left.bf >= 0) { // if parent bf = -2 and left child bf = 0 or 1
-        node = rotateRight(k, node);
+        node = rotateRight(node);
       } else {
-        node = rotateLeftRight(k, node);
+        node = rotateLeftRight(node);
       }
     }
     return node;
   }
 
-  private Node<K, V> rotateRight(K k, Node<K, V> node) {
+  private Node<K, V> rotateRight(Node<K, V> node) {
     // perform rotation
     Node<K, V> leftChild = node.left;
     node.left = leftChild.right;
@@ -111,7 +110,7 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     return leftChild;
   }
 
-  private Node<K, V> rotateLeft(K k, Node<K, V> node) {
+  private Node<K, V> rotateLeft(Node<K, V> node) {
     // perform rotation
     Node<K, V> rightChild = node.right;
     node.right = rightChild.left;
@@ -127,21 +126,70 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     return rightChild;
   }
 
-  private Node<K, V> rotateRightLeft(K k, Node<K, V> node) {
-    node.right = rotateRight(k, node.right);// first perform right rotation on right child
-    return rotateLeft(k, node); // then perform left rotation on original root, returning new root after rotation
+  private Node<K, V> rotateRightLeft(Node<K, V> node) {
+    node.right = rotateRight(node.right);// first perform right rotation on right child
+    return rotateLeft(node); // then perform left rotation on original root, returning new root after rotation
   }
 
-  private Node<K, V> rotateLeftRight(K k, Node<K, V> node) {
-    node.left = rotateLeft(k, node.left); // first perform left rotation on left child
-    return rotateRight(k, node); // // then perform right rotation on original root, returning new root after rotation
+  private Node<K, V> rotateLeftRight(Node<K, V> node) {
+    node.left = rotateLeft(node.left); // first perform left rotation on left child
+    return rotateRight(node); // // then perform right rotation on original root, returning new root after rotation
   }
 
 
   @Override
   public V remove(K k) throws IllegalArgumentException {
-    // TODO Implement Me!
-    return null;
+    Node<K, V> node = findForSure(k, root);
+    V value = node.value;
+    root = remove(root, node);
+    numElements--;
+    return value;
+  }
+
+  // Remove node with given key from subtree rooted at given node;
+  // Return changed subtree with given key missing.
+  private Node<K, V> remove(Node<K, V> subtreeRoot, Node<K, V> toRemove) {
+    if (subtreeRoot.key.compareTo(toRemove.key) == 0) {
+      return remove(subtreeRoot);
+    } else if (subtreeRoot.key.compareTo(toRemove.key) > 0) {
+      subtreeRoot.left = remove(subtreeRoot.left, toRemove);
+    } else {
+      subtreeRoot.right = remove(subtreeRoot.right, toRemove);
+    }
+    updateNodeHeight(subtreeRoot);
+    updateNodeBF(subtreeRoot);
+    if (subtreeRoot.bf > 1 || subtreeRoot.bf < -1) {
+      subtreeRoot = balanceNode(subtreeRoot);
+    }
+    return subtreeRoot;
+  }
+
+  // Remove given node and return the remaining tree (structural change).
+  private Node<K, V> remove(Node<K, V> node) {
+    // Easy if the node has 0 or 1 child.
+    if (node.right == null) {
+      return node.left;
+    } else if (node.left == null) {
+      return node.right;
+    }
+
+    // If it has two children, find the predecessor (max in left subtree),
+    Node<K, V> toReplaceWith = maxInLeftSubtree(node);
+    // then copy its data to the given node (value change),
+    node.key = toReplaceWith.key;
+    node.value = toReplaceWith.value;
+    // then remove the predecessor node (structural change).
+    node.left = remove(node.left, toReplaceWith);
+
+    return node;
+  }
+
+  private Node<K, V> maxInLeftSubtree(Node<K, V> node) {
+    Node<K, V> curr = node.left;
+    while (curr.right != null) {
+      curr = curr.right;
+    }
+    return curr;
   }
 
   @Override
@@ -184,6 +232,9 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
   }
 
   private Node<K, V> find(K k, Node<K, V> node) {
+    if (k == null) {
+      throw new IllegalArgumentException("cannot handle null key");
+    }
     if (node == null) {
       return null;
     } else if (node.key.compareTo(k) > 0) {
@@ -193,6 +244,16 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     } else {
       return node;
     }
+  }
+
+  // Return node for given key,
+  // throw an exception if the key is not in the tree.
+  private Node<K, V> findForSure(K k, Node<K, V> node) {
+    Node<K, V> n = find(k, node);
+    if (n == null) {
+      throw new IllegalArgumentException("cannot find key " + k);
+    }
+    return n;
   }
 
   /*** Do not change this function's name or modify its code. ***/

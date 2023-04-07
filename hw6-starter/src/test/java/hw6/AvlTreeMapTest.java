@@ -195,5 +195,107 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
     assertEquals((String.join("\n", expected) + "\n"), map.toString());
   }
 
+  @Test
+  public void removeCausingRightRotationDueToProblemInLeftSubtree() {
+    map.insert("7", "a");
+    map.insert("5", "b");
+    map.insert("8", "c");
+    map.insert("6", "d");
+    map.insert("9", "e");
+    map.insert("4", "f");
+    map.insert("3", "g");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "7:a",
+            "5:b 8:c",
+            "4:f 6:d null 9:e",
+            "3:g null null null null null null null"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+
+    map.remove("6");
+    System.out.println(map.toString());
+    String[] expectedPostRemove = new String[]{
+            "7:a",
+            "4:f 8:c",
+            "3:g 5:b null 9:e",
+    };
+    assertEquals((String.join("\n", expectedPostRemove) + "\n"), map.toString());
+  }
+
+  @Test
+  public void removeCausingLeftRotationDueToProblemInRightSubtree() {
+    map.insert("5", "a");
+    map.insert("4", "b");
+    map.insert("7", "c");
+    map.insert("3", "d");
+    map.insert("6", "e");
+    map.insert("8", "f");
+    map.insert("9", "g");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "5:a",
+            "4:b 7:c",
+            "3:d null 6:e 8:f",
+            "null null null null null null null 9:g"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+
+    map.remove("6");
+    System.out.println(map.toString());
+    String[] expectedPostRemove = new String[]{
+            "5:a",
+            "4:b 8:f",
+            "3:d null 7:c 9:g"
+    };
+    assertEquals((String.join("\n", expectedPostRemove) + "\n"), map.toString());
+  }
+
+  @Test
+  public void removeCausingLeftRightRotationDueToProblemInLeftChildRightSubtree() {
+    map.insert("7", "a");
+    map.insert("3", "b");
+    map.insert("9", "c");
+    map.insert("5", "d");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "7:a",
+            "3:b 9:c",
+            "null 5:d null null"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+
+    map.remove("9");
+    System.out.println(map.toString());
+    String[] expectedPostRemoval = new String[]{
+            "5:d",
+            "3:b 7:a"
+    };
+    assertEquals((String.join("\n", expectedPostRemoval) + "\n"), map.toString());
+  }
+
+  @Test
+  public void removeCausingRightLeftRotationDueToProblemInRightChildLeftSubtree() {
+    map.insert("5", "a");
+    map.insert("4", "b");
+    map.insert("7", "c");
+    map.insert("6", "d");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "5:a",
+            "4:b 7:c",
+            "null null 6:d null"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+
+    map.remove("4");
+    System.out.println(map.toString());
+    String[] expectedPostRemoval = new String[]{
+            "6:d",
+            "5:a 7:c"
+    };
+    assertEquals((String.join("\n", expectedPostRemoval) + "\n"), map.toString());
+  }
+
 
 }
