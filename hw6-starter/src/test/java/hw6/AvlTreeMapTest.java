@@ -18,7 +18,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertLeftRotation() {
+  public void insertLeftRotationWhenRootImbalancedAfterInsert() {
     map.insert("1", "a");
     System.out.println(map.toString());
     // must print
@@ -50,7 +50,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertLeftRotationWithMoreElements() {
+  public void insertLeftRotationWithProblemInRightSubtreeAfterInsert() {
     map.insert("5", "a");
     map.insert("4", "b");
     map.insert("6", "c");
@@ -74,7 +74,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertRightRotation() {
+  public void insertRightRotationWhenRootImbalancedAfterInsert() {
     map.insert("3", "c");
     System.out.println(map.toString());
     // must print
@@ -106,7 +106,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertRightRotationWithMoreElements() {
+  public void insertRightRotationWithProblemInLeftSubtreeAfterInsert() {
     map.insert("7", "a");
     map.insert("6", "b");
     map.insert("8", "c");
@@ -130,7 +130,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertLeftRightRotation() {
+  public void insertLeftRightRotationWhenRootImbalancedAfterInsert() {
     map.insert("7", "c");
     System.out.println(map.toString());
     // must print
@@ -164,7 +164,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
 
 
   @Test
-  public void insertRightLeftRotation() {
+  public void insertRightLeftRotationWhenRootImbalancedAfterInsert() {
     map.insert("3", "c");
     System.out.println(map.toString());
     // must print
