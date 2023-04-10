@@ -3,6 +3,7 @@ package hw6.bst;
 import hw6.OrderedMap;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * Map implemented as a Treap.
@@ -16,6 +17,7 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
   private static Random rand;
   /*** Do not change variable name of 'root'. ***/
   private Node<K, V> root;
+  private int numElements;
 
   /**
    * Make a TreapMap.
@@ -26,42 +28,158 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
 
   @Override
   public void insert(K k, V v) throws IllegalArgumentException {
-    // TODO Implement Me!
+    if (k == null) {
+      throw new IllegalArgumentException("Cannot insert a null key");
+    }
+    root = insert(k, v, root);
+    numElements++;
+  }
+
+  private Node<K, V> insert(K k, V v, Node<K, V> node) {
+    if (node == null) { // base case: put new node in correct spot
+      return new Node<>(k,v);
+    }
+    // search for correct spot to put new node
+    int cmp = node.key.compareTo(k);
+    if (cmp > 0) {
+      node.left = insert(k, v, node.left);
+      if (node.left.priority < node.priority) { // fix min heap property if violated
+        node = rotateRight(node);
+      }
+    } else if (cmp < 0) {
+      node.right = insert(k, v, node.right);
+      if (node.right.priority < node.priority) {
+        node = rotateLeft(node);
+      }
+    } else {
+      throw new IllegalArgumentException();
+    }
+    return node;
   }
 
   @Override
   public V remove(K k) throws IllegalArgumentException {
-    // TODO Implement Me!
-    return null;
+    Node<K, V> toRemove = findForSure(k, root);
+    root = remove(k, toRemove);
+    numElements--;
+    return toRemove.value;
+  }
+
+  private Node<K, V> remove(K k, Node<K, V> node) {
+    if (node == null) {
+      return null;
+    }
+    // search for key down the tree
+    if (k.compareTo(node.key) < 0) {
+      node.left = remove(k, node.left);
+    } else if (k.compareTo(node.key) > 0) {
+      node.right = remove(k, node.right);
+    } else { // at target node to remove
+      if (node.left == null && node.right == null) {
+        return null;
+      } else if (node.left == null || node.right == null) {
+        node = removeNodeWithOneChild(k, node);
+      } else { // removing node with two children
+        node = removeNodeWithTwoChildren(k, node);
+      }
+    }
+    return node;
+  }
+
+  private Node<K, V> removeNodeWithOneChild(K k, Node<K, V> node) {
+    if (node.left == null) {
+      node = node.right;
+    } else {
+      node = node.left;
+    }
+    return node;
+  }
+
+  private Node<K, V> removeNodeWithTwoChildren(K k , Node<K, V> node) {
+    if (node.left.priority > node.right.priority) {
+      node = rotateLeft(node);
+      node.left = remove(k, node.left);
+    } else {
+      node = rotateRight(node);
+      node.right = remove(k, node.right);
+    }
+    return node;
+  }
+
+  private Node<K, V> rotateRight(Node<K, V> node) {
+    Node<K, V> leftChild = node.left;
+    node.left = leftChild.right;
+    leftChild.right = node;
+    return leftChild;
+  }
+
+  private Node<K, V> rotateLeft(Node<K, V> node) {
+    Node<K, V> rightChild = node.right;
+    node.right = rightChild.left;
+    rightChild.left = node;
+    return rightChild;
   }
 
   @Override
   public void put(K k, V v) throws IllegalArgumentException {
-    // TODO Implement Me!
+    if (k == null) {
+      throw new IllegalArgumentException();
+    }
+    Node<K, V> nodeToUpdate = find(k, root);
+    if (nodeToUpdate == null) { // throw exception if target key doesn't exist in tree
+      throw new IllegalArgumentException();
+    }
+    nodeToUpdate.value = v;
   }
 
   @Override
   public V get(K k) throws IllegalArgumentException {
-    // TODO Implement Me!
-    return null;
+    if (k == null) {
+      throw new IllegalArgumentException();
+    }
+    Node<K, V> target = find(k, root);
+    if (target == null) { // throw exception if target key doesn't exist in tree
+      throw new IllegalArgumentException();
+    }
+    return target.value;
   }
 
   @Override
   public boolean has(K k) {
-    // TODO Implement Me!
-    return false;
+    return find(k, root) != null;
+  }
+
+  private Node<K, V> find(K k, Node<K, V> node) {
+    if (k == null) {
+      throw new IllegalArgumentException("cannot handle null key");
+    }
+    if (node == null) {
+      return null;
+    } else if (node.key.compareTo(k) > 0) {
+      return find(k, node.left);
+    } else if (node.key.compareTo(k) < 0) {
+      return find(k, node.right);
+    } else {
+      return node;
+    }
+  }
+
+  private Node<K, V> findForSure(K k, Node<K, V> node) {
+    Node<K, V> n = find(k, node);
+    if (n == null) {
+      throw new IllegalArgumentException("cannot find key " + k);
+    }
+    return n;
   }
 
   @Override
   public int size() {
-    // TODO Implement Me!
-    return 0;
+    return numElements;
   }
 
   @Override
   public Iterator<K> iterator() {
-    // TODO Implement Me!
-    return null;
+    return new InorderIterator();
   }
 
   /*** Do not change this function's name or modify its code. ***/
@@ -116,6 +234,34 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
     @Override
     public BinaryTreeNode getRightChild() {
       return right;
+    }
+  }
+
+  private class InorderIterator implements Iterator<K> {
+    private final Stack<Node<K, V>> stack;
+
+    InorderIterator() {
+      stack = new Stack<>();
+      pushLeft(root);
+    }
+
+    private void pushLeft(Node<K, V> curr) {
+      while (curr != null) {
+        stack.push(curr);
+        curr = curr.left;
+      }
+    }
+
+    @Override
+    public boolean hasNext() {
+      return !stack.isEmpty();
+    }
+
+    @Override
+    public K next() {
+      Node<K, V> top = stack.pop();
+      pushLeft(top.right);
+      return top.key;
     }
   }
 }
