@@ -14,7 +14,7 @@ import java.util.Stack;
 public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
 
   /*** Do not change variable name of 'rand'. ***/
-  private static Random rand;
+  public static Random rand;
   /*** Do not change variable name of 'root'. ***/
   private Node<K, V> root;
   private int numElements;
@@ -25,6 +25,14 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
   public TreapMap() {
     rand = new Random();
   }
+
+  /**
+   * Make a TreapMap with initial seed.
+   */
+  public TreapMap(int seed) {
+    rand = new Random(seed);
+  }
+
 
   @Override
   public void insert(K k, V v) throws IllegalArgumentException {
@@ -59,10 +67,14 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
 
   @Override
   public V remove(K k) throws IllegalArgumentException {
+    if (k == null) {
+      throw new IllegalArgumentException();
+    }
     Node<K, V> toRemove = findForSure(k, root);
-    root = remove(k, toRemove);
+    V val = toRemove.value;
+    root = remove(k, root);
     numElements--;
-    return toRemove.value;
+    return val;
   }
 
   private Node<K, V> remove(K k, Node<K, V> node) {
@@ -83,19 +95,34 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
         node = removeNodeWithTwoChildren(k, node);
       }
     }
+    // make sure as we go up tree, priorities are correct
+    node = checkForRotations(node);
     return node;
+  }
+
+  private Node<K, V> checkForRotations(Node<K, V> node) {
+    if (node.left != null && node.priority > node.left.priority) { // if left child has smaller priority, fix
+      return rotateRight(node);
+    } else if (node.right != null && node.priority > node.right.priority) { // if right child has smaller priority, fix
+      return rotateLeft(node);
+    } else { // if priorities are ok, no rotation needed
+      return node;
+    }
   }
 
   private Node<K, V> removeNodeWithOneChild(K k, Node<K, V> node) {
     if (node.left == null) {
-      node = node.right;
+      node = rotateLeft(node);
+      node.left = remove(k, node.left);
     } else {
-      node = node.left;
+      node = rotateRight(node);
+      node.right = remove(k, node.right);
     }
     return node;
   }
 
-  private Node<K, V> removeNodeWithTwoChildren(K k , Node<K, V> node) {
+  private Node<K, V> removeNodeWithTwoChildren(K k, Node<K, V> node) {
+    node.priority = Integer.MAX_VALUE; // make max value so that it becomes a leaf at some point
     if (node.left.priority > node.right.priority) {
       node = rotateLeft(node);
       node.left = remove(k, node.left);
@@ -235,6 +262,7 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
     public BinaryTreeNode getRightChild() {
       return right;
     }
+
   }
 
   private class InorderIterator implements Iterator<K> {

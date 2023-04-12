@@ -180,7 +180,11 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     node.value = toReplaceWith.value;
     // then remove the predecessor node (structural change).
     node.left = remove(node.left, toReplaceWith);
-
+    updateNodeHeight(node);
+    updateNodeBF(node);
+    if (node.bf > 1 || node.bf < -1) {
+      node = balanceNode(node);
+    }
     return node;
   }
 
