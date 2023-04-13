@@ -28,6 +28,7 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
 
   /**
    * Make a TreapMap with initial seed.
+   * @param seed for random number generation
    */
   public TreapMap(int seed) {
     rand = new Random(seed);
@@ -56,10 +57,10 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
       }
     } else if (cmp < 0) {
       node.right = insert(k, v, node.right);
-      if (node.right.priority < node.priority) {
+      if (node.right.priority < node.priority) { // fix min heap property if violated
         node = rotateLeft(node);
       }
-    } else {
+    } else { // keys must be unique
       throw new IllegalArgumentException();
     }
     return node;
@@ -87,9 +88,9 @@ public class TreapMap<K extends Comparable<K>, V> implements OrderedMap<K, V> {
     } else if (k.compareTo(node.key) > 0) {
       node.right = remove(k, node.right);
     } else { // at target node to remove
-      if (node.left == null && node.right == null) {
+      if (node.left == null && node.right == null) { // if target is leaf, just remove by making null
         return null;
-      } else if (node.left == null || node.right == null) {
+      } else if (node.left == null || node.right == null) { // remove node with one child
         node = removeNodeWithOneChild(k, node);
       } else { // removing node with two children
         node = removeNodeWithTwoChildren(k, node);

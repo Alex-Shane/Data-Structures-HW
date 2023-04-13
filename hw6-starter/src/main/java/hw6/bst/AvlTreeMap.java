@@ -35,15 +35,13 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
       node.left = insert(k, v, node.left);
     } else if (cmp < 0) {
       node.right = insert(k, v, node.right);
-    } else {
+    } else { // keys must be unique
       throw new IllegalArgumentException();
     }
     // update height and bf of current node
     updateNodeHeight(node);
     updateNodeBF(node);
-    if (node.bf > 1 || node.bf < -1) { // balance node if needed
-      node = balanceNode(node);
-    }
+    node = balance(node);
     return node;
   }
 
@@ -149,18 +147,18 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
   // Remove node with given key from subtree rooted at given node;
   // Return changed subtree with given key missing.
   private Node<K, V> remove(Node<K, V> subtreeRoot, Node<K, V> toRemove) {
-    if (subtreeRoot.key.compareTo(toRemove.key) == 0) {
+    // go through tree to find target node to remove
+    if (subtreeRoot.key.compareTo(toRemove.key) == 0) { // found node, remove it
       return remove(subtreeRoot);
     } else if (subtreeRoot.key.compareTo(toRemove.key) > 0) {
       subtreeRoot.left = remove(subtreeRoot.left, toRemove);
     } else {
       subtreeRoot.right = remove(subtreeRoot.right, toRemove);
     }
+    // udpate heights and balance factors as removal occurs
     updateNodeHeight(subtreeRoot);
     updateNodeBF(subtreeRoot);
-    if (subtreeRoot.bf > 1 || subtreeRoot.bf < -1) {
-      subtreeRoot = balanceNode(subtreeRoot);
-    }
+    subtreeRoot = balance(subtreeRoot);
     return subtreeRoot;
   }
 
@@ -180,8 +178,14 @@ public class AvlTreeMap<K extends Comparable<K>, V> implements OrderedMap<K, V> 
     node.value = toReplaceWith.value;
     // then remove the predecessor node (structural change).
     node.left = remove(node.left, toReplaceWith);
+    // need to update height and balance factor of node after changes and check if it needs to be balanced
     updateNodeHeight(node);
     updateNodeBF(node);
+    node = balance(node);
+    return node;
+  }
+
+  private Node<K, V> balance(Node<K, V> node) {
     if (node.bf > 1 || node.bf < -1) {
       node = balanceNode(node);
     }

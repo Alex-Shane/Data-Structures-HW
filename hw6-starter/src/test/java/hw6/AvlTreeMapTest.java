@@ -18,7 +18,19 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertLeftRotationWhenRootImbalancedAfterInsert() {
+  public void testInsertCausesNoRotation() {
+    map.insert("5", "a");
+    map.insert("6", "b");
+    map.insert("4", "c");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "5:a",
+            "4:c 6:b"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+  }
+  @Test
+  public void testInsertCausesLeftRotation() {
     map.insert("1", "a");
     System.out.println(map.toString());
     // must print
@@ -50,7 +62,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertLeftRotationWithProblemInRightSubtreeAfterInsert() {
+  public void testInsertCausesLeftRotationWithMoreElements() {
     map.insert("5", "a");
     map.insert("4", "b");
     map.insert("6", "c");
@@ -74,7 +86,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertRightRotationWhenRootImbalancedAfterInsert() {
+  public void testInsertCausesRightRotation() {
     map.insert("3", "c");
     System.out.println(map.toString());
     // must print
@@ -106,7 +118,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertRightRotationWithProblemInLeftSubtreeAfterInsert() {
+  public void testInsertCausesRightRotationWithMoreElements() {
     map.insert("7", "a");
     map.insert("6", "b");
     map.insert("8", "c");
@@ -130,7 +142,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void insertLeftRightRotationWhenRootImbalancedAfterInsert() {
+  public void testInsertCausesLeftRightRotation() {
     map.insert("7", "c");
     System.out.println(map.toString());
     // must print
@@ -164,7 +176,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
 
 
   @Test
-  public void insertRightLeftRotationWhenRootImbalancedAfterInsert() {
+  public void testInsertCausesRightLeftRotation() {
     map.insert("3", "c");
     System.out.println(map.toString());
     // must print
@@ -196,7 +208,21 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void removeCausingRightRotationDueToProblemInLeftSubtree() {
+  public void testRemoveCausesNoRotation() {
+    map.insert("7", "a");
+    map.insert("5", "b");
+    map.insert("8", "c");
+    map.insert("9", "d");
+    map.remove("9");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "7:a",
+            "5:b 8:c"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+  }
+  @Test
+  public void testRemoveCausesRightRotation() {
     map.insert("7", "a");
     map.insert("5", "b");
     map.insert("8", "c");
@@ -224,7 +250,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void removeCausingLeftRotationDueToProblemInRightSubtree() {
+  public void testRemoveCausesLeftRotation() {
     map.insert("5", "a");
     map.insert("4", "b");
     map.insert("7", "c");
@@ -252,7 +278,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void removeCausingLeftRightRotationDueToProblemInLeftChildRightSubtree() {
+  public void testRemoveCausesLeftRightRotation() {
     map.insert("7", "a");
     map.insert("3", "b");
     map.insert("9", "c");
@@ -275,7 +301,7 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
   }
 
   @Test
-  public void removeCausingRightLeftRotationDueToProblemInRightChildLeftSubtree() {
+  public void testRemoveCausesRightLeftRotation() {
     map.insert("5", "a");
     map.insert("4", "b");
     map.insert("7", "c");
@@ -295,6 +321,47 @@ public class AvlTreeMapTest extends BinarySearchTreeMapTest {
             "5:a 7:c"
     };
     assertEquals((String.join("\n", expectedPostRemoval) + "\n"), map.toString());
+  }
+
+  @Test
+  public void testRemoveLeaf() {
+    map.insert("2", "a");
+    map.insert("3", "b");
+    map.insert("1", "c");
+    map.insert("4", "d");
+    map.remove("4");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "2:a",
+            "1:c 3:b"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+  }
+
+  @Test
+  public void testRemoveNodeWithOneChild() {
+    map.insert("5", "a");
+    map.insert("6", "b");
+    map.remove("5");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "6:b"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
+  }
+
+  @Test
+  public void testRemoveNodeWithTwoChildren() {
+    map.insert("5", "a");
+    map.insert("4", "b");
+    map.insert("7", "c");
+    map.remove("5");
+    System.out.println(map.toString());
+    String[] expected = new String[]{
+            "4:b",
+            "null 7:c"
+    };
+    assertEquals((String.join("\n", expected) + "\n"), map.toString());
   }
 
 
