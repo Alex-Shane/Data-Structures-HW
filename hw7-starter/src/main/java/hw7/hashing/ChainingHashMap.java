@@ -10,13 +10,13 @@ import java.util.List;
 public class ChainingHashMap<K, V> implements Map<K, V> {
   private LinkedList<Pair<K,V>> [] map;
   private int numElements;
-  private final int capacity;
-  private final int[] primes = {5, 11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717, 51437,102877, 205759, 411527, 823117, 1646237,3292489, 6584983, 13169977};
+  private int capacity;
+  private final int[] primes = {3, 5, 11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717, 51437,102877, 205759, 411527, 823117, 1646237,3292489, 6584983, 13169977};
   private int primeIndex;
 
   public ChainingHashMap() {
     numElements = 0;
-    primeIndex = 0;
+    primeIndex = 1; // want first rehash to be size 5
     capacity = primes[0];
     map = (LinkedList<Pair<K,V>>[]) Array.newInstance(LinkedList.class, capacity);
   }
@@ -114,13 +114,12 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
 
   private void rehash() {
     LinkedList<Pair<K,V>> [] newMap = map;
-    int newSize;
-    if (primeIndex <= 21) {
-      newSize = primes[primeIndex];
+    if (primeIndex <= 22) {
+      capacity = primes[primeIndex];
     } else {
-      newSize = capacity * 2;
+      capacity = capacity * 2;
     }
-    map = (LinkedList<Pair<K,V>>[]) Array.newInstance(LinkedList.class, newSize);
+    map = (LinkedList<Pair<K,V>>[]) Array.newInstance(LinkedList.class, capacity);
     /*final LinkedList<Pair<K,V>> [] temp = map;
     if (primeIndex <= 22) {
       capacity = primes[primeIndex];
@@ -129,7 +128,10 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
     }*/
     primeIndex++;
     numElements = 0;
-    for (LinkedList<Pair<K, V>> list: map) {
+    for (LinkedList<Pair<K, V>> list: newMap) {
+      if (list == null) {
+        continue;
+      }
       for (Pair<K, V> pair: list) {
         insert(pair.getKey(), pair.getValue());
       }
