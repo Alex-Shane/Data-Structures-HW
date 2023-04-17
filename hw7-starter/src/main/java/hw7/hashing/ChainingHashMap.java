@@ -6,7 +6,8 @@ import java.util.LinkedList;
 
 public class ChainingHashMap<K, V> implements Map<K, V> {
   private LinkedList<Pair<K,V>> [] map;
-  private int size;
+  private int numElements;
+  private int capacity;
   @Override
   public void insert(K k, V v) throws IllegalArgumentException {
     // TODO Implement Me!
@@ -23,7 +24,7 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
     if (k == null || !has(k)) {
       throw new IllegalArgumentException();
     }
-    int index = getIndex(k);
+    int index = k.hashCode() % capacity;
     LinkedList<Pair<K, V>> chain = map[index];
     Pair<K, V> targetPair = findPairInChain(k, chain);
     int indexInChain = chain.indexOf(targetPair);
@@ -35,7 +36,7 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
     if (k == null || !has(k)) {
       throw new IllegalArgumentException();
     }
-    int index = getIndex(k);
+    int index = k.hashCode() % capacity;
     LinkedList<Pair<K, V>> chain = map[index];
     Pair<K, V> targetPair = findPairInChain(k, chain);
     if (targetPair != null) {
@@ -49,7 +50,7 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
     if (k == null) {
       return false;
     }
-    int index = getIndex(k);
+    int index = k.hashCode() % capacity;
     return map[index].size() != 0;
   }
 
@@ -64,13 +65,12 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
 
   @Override
   public int size() {
-    return size;
+    return numElements;
   }
 
   @Override
   public Iterator<K> iterator() {
-    // TODO Implement Me!
-    return null;
+    return new ChainingHashMapIterator();
   }
 
   private static class Pair<K, V> {
@@ -88,6 +88,33 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
 
     public V getValue() {
       return value;
+    }
+  }
+
+  private class ChainingHashMapIterator implements Iterator<K> {
+    private int curMapIndex;
+    private int curChainIndex;
+    private LinkedList<Pair<K, V>> curChain;
+
+    ChainingHashMapIterator() {
+      curMapIndex = 0;
+      curChainIndex = 0;
+    }
+
+    public boolean hasNext() {
+      return curMapIndex < capacity;
+    }
+
+    public K next() {
+      Pair<K, V> pair = curChain.get(curChainIndex);
+      if (curChainIndex + 1 == curChain.size()) {
+        curMapIndex++;
+        curChainIndex = 0;
+        curChain = map[curMapIndex];
+      } else {
+        curChainIndex++;
+      }
+      return pair.getKey();
     }
   }
 }
