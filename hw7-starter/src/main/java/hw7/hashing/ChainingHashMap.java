@@ -12,9 +12,13 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
   private ArrayList<Pair<K,V>> [] map;
   private int numElements;
   private int capacity;
-  private final int[] primes = {3, 5, 11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853, 25717, 51437,102877, 205759, 411527, 823117, 1646237,3292489, 6584983, 13169977};
+  private final int[] primes = {3, 5, 11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421, 12853,
+                                25717, 51437,102877, 205759, 411527, 823117, 1646237,3292489, 6584983, 13169977};
   private int primeIndex;
 
+  /**
+   * Create new ChainingHashMap.
+   */
   public ChainingHashMap() {
     numElements = 0;
     primeIndex = 1; // want first rehash to be size 5
@@ -26,10 +30,8 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
   public void insert(K k, V v) throws IllegalArgumentException {
     if (k == null) {
       throw new IllegalArgumentException();
-    } else if (getLoadFactor() >= 0.8) {
-      rehash();
     }
-    int index = k.hashCode() % capacity;
+    int index = getIndex(k);
     ArrayList<Pair<K, V>> chain;
     if (map[index] == null) {
       map[index] = new ArrayList<>();
@@ -40,6 +42,9 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
     }
     chain.add(new Pair<>(k,v));
     numElements++;
+    if (getLoadFactor() >= 0.75) {
+      rehash();
+    }
   }
 
   @Override
@@ -47,7 +52,7 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
     if (k == null || !has(k)) {
       throw new IllegalArgumentException();
     }
-    int index = k.hashCode() % capacity;
+    int index = getIndex(k);
     ArrayList<Pair<K, V>> chain = map[index];
     Pair<K, V> targetPair = findPairInChain(k, chain);
     if (targetPair != null) {
@@ -63,10 +68,10 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
 
   @Override
   public void put(K k, V v) throws IllegalArgumentException {
-    if (k == null || !has(k)) {
+    if (nullKeyOrNotMapped(k)) {
       throw new IllegalArgumentException();
     }
-    int index = k.hashCode() % capacity;
+    int index = getIndex(k);
     ArrayList<Pair<K, V>> chain = map[index];
     Pair<K, V> targetPair = findPairInChain(k, chain);
     int indexInChain = chain.indexOf(targetPair);
@@ -75,7 +80,7 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
 
   @Override
   public V get(K k) throws IllegalArgumentException {
-    if (k == null || !has(k)) {
+    if (nullKeyOrNotMapped(k)) {
       throw new IllegalArgumentException();
     }
     Pair<K, V> targetPair = findPair(k);
@@ -90,8 +95,12 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
     if (k == null) {
       return false;
     }
-    int index = k.hashCode() % capacity;
-    return map[index] != null;
+    int index = getIndex(k);
+    ArrayList<Pair<K, V>> chain = map[index];
+    if (chain == null) {
+      return false;
+    }
+    return findPairInChain(k, chain) != null;
   }
 
   private Pair<K, V> findPairInChain(K k, ArrayList<Pair<K, V>> chain) {
@@ -104,7 +113,7 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
   }
 
   private Pair<K, V> findPair(K k) {
-    int index = k.hashCode() % capacity;
+    int index = getIndex(k);
     ArrayList<Pair<K, V>> chain = map[index];
     return findPairInChain(k, chain);
   }
@@ -131,6 +140,14 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
         insert(pair.getKey(), pair.getValue());
       }
     }
+  }
+
+  private boolean nullKeyOrNotMapped(K k) {
+    return k == null || !has(k);
+  }
+
+  private int getIndex(K k) {
+    return (k.hashCode() & 0x7fffffff) % capacity;
   }
 
   @Override
@@ -185,11 +202,10 @@ public class ChainingHashMap<K, V> implements Map<K, V> {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
-      if (curChain == null || curChainIndex == curChain.size()) {
+      while (curChain == null || curChainIndex == curChain.size()) {
         curMapIndex++;
         curChainIndex = 0;
         curChain = map[curMapIndex];
-        return next();
       }
       Pair<K, V> pair = curChain.get(curChainIndex);
       curChainIndex++;

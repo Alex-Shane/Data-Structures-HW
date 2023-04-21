@@ -12,6 +12,9 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
                                 25717, 51437,102877, 205759, 411527, 823117, 1646237,3292489, 6584983, 13169977};
   private int primeIndex;
 
+  /**
+   * Create new OpenAddressingHashMap.
+   */
   public OpenAddressingHashMap() {
     numElements = 0;
     capacity = primes[0];
@@ -21,25 +24,23 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
 
   @Override
   public void insert(K k, V v) throws IllegalArgumentException {
-    if (k == null) {
+    if (k == null || has(k)) {
       throw new IllegalArgumentException();
-    } else if (getLoadFactor() >= 0.65) {
-      rehash();
     }
-    int index = k.hashCode() % capacity;
+    int index = getHash(k) % capacity;
     if (map[index] != null) {
       index = probe(k);
-      if (index == -1) {
-        throw new IllegalArgumentException();
-      }
     }
     map[index] = new Pair<>(k, v);
     numElements++;
+    if (getLoadFactor() >= 0.75) {
+      rehash();
+    }
   }
 
   @Override
   public V remove(K k) throws IllegalArgumentException {
-    if (k == null || !has(k)) {
+    if (nullKeyOrNotMapped(k)) {
       throw new IllegalArgumentException();
     }
     int index = findTrueIndex(k);
@@ -50,7 +51,7 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
 
   @Override
   public void put(K k, V v) throws IllegalArgumentException { // check for if element isn't at expected index
-    if (k == null || !has(k)) {
+    if (nullKeyOrNotMapped(k)) {
       throw new IllegalArgumentException();
     }
     int index = findTrueIndex(k);
@@ -59,7 +60,7 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
 
   @Override
   public V get(K k) throws IllegalArgumentException { // need to add in check for if element isn't at expected index
-    if (k == null || !has(k)) {
+    if (nullKeyOrNotMapped(k)) {
       throw new IllegalArgumentException();
     }
     int index = findTrueIndex(k);
@@ -75,9 +76,13 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
     return index != -1;
   }
 
+  private int getHash(K k) {
+    return (k.hashCode() & 0x7fffffff);
+  }
+
   private int findTrueIndex(K k) {
     for (int i = 0; i < capacity; i++) {
-      int index = (k.hashCode() + i) % capacity;
+      int index = (getHash(k) + i) % capacity;
       if (map[index] != null && map[index].getKey().equals(k) && !map[index].isTS()) {
         return index;
       }
@@ -87,15 +92,12 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
 
   private int probe(K k) {
     for (int i = 0; i < capacity; i++) {
-      int index = (k.hashCode() + i) % capacity;
-      if (map[index] != null && map[index].getKey().equals(k)) {
-        return -1;
-      }
+      int index = (getHash(k) + i) % capacity;
       if (map[index] == null || map[index].isTS()) {
         return index;
       }
     }
-    return -2; // table is full
+    return -1; // table is full
   }
 
   private double getLoadFactor() {
@@ -118,6 +120,10 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
       }
       insert(pair.getKey(), pair.getValue());
     }
+  }
+
+  private boolean nullKeyOrNotMapped(K k) {
+    return k == null || !has(k);
   }
 
   @Override
@@ -166,6 +172,9 @@ public class OpenAddressingHashMap<K, V> implements Map<K, V> {
     private int curMapIndex;
     private int elementsTraversed;
 
+    /**
+     * Create new OpenAddressingHashMap.
+     */
     OpenAddressingHashMapIterator() {
       elementsTraversed = 0;
       curMapIndex = 0;
